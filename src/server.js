@@ -27,7 +27,22 @@ dotenv.config();
 const app = express();
 
 const allowed = (process.env.CORS_ORIGIN || '').split(',').filter(Boolean);
-app.use(cors({ origin: (origin, cb) => cb(null, allowed.length ? allowed.includes(origin) || !origin : true), credentials: true }));
+app.use(cors({
+  origin: function(origin, callback) {
+    // Allow requests with no origin (like mobile apps, curl)
+    if (!origin) return callback(null, true);
+
+    if (allowed.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization'],
+  credentials: true,
+  optionsSuccessStatus: 200  // Some browsers need this for legacy support
+}));
 app.use(morgan('dev'));
 
 // Mount Stripe webhook before JSON parser
