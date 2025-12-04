@@ -43,7 +43,11 @@ app.use(cors({
   credentials: true,
   optionsSuccessStatus: 200  // Some browsers need this for legacy support
 }));
-app.options('*', cors());
+app.options('*', cors({origin: allowedOrigins,
+  methods: ['GET','POST','PUT','DELETE','OPTIONS'],
+  allowedHeaders: ['Content-Type','Authorization'],
+  credentials: true
+}));
 app.use(morgan('dev'));
 
 // Mount Stripe webhook before JSON parser
