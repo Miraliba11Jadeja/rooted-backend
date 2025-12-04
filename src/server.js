@@ -81,7 +81,7 @@ app.use('/api/reviews', reviewsRoutes);
 
 app.use(errorHandler);
 
-const port = process.env.PORT || 443;
+const port = process.env.PORT || 3000;
 
 connectDB().then(async () => {
   await ensureBootstrapAdmin();
