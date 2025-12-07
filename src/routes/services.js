@@ -12,7 +12,7 @@ router.get('/', async (req, res, next) => {
 router.post('/', requireAuth,
   body('title').isString(),
   body('description').isString(),
-  body('price').isNumeric(),
+  body('readMore').optional().isString(),
   async (req, res, next) => {
     try {
       const errors = validationResult(req);
