@@ -1,6 +1,7 @@
 import express from 'express';
 import morgan from 'morgan';
 import dotenv from 'dotenv';
+import cors from 'cors';
 import { connectDB, ensureBootstrapAdmin } from './setup.js';
 import authRoutes from './routes/auth.js';
 import serviceRoutes from './routes/services.js';
@@ -26,6 +27,11 @@ dotenv.config();
 const app = express();
 
 app.use(morgan('dev'));
+
+// CORS
+const allowedOrigins = (process.env.CORS_ORIGINS || 'https://rootedbysoniya.com,http://localhost:3000').split(',').map(s => s.trim());
+app.use(cors({ origin: allowedOrigins, credentials: true }));
+app.options('*', cors({ origin: allowedOrigins, credentials: true }));
 
 // Mount Stripe webhook before JSON parser
 import paymentsWebhook from './webhook.js';

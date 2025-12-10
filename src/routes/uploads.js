@@ -6,7 +6,7 @@ import { requireAuth } from '../middleware/auth.js';
 
 const router = Router();
 
-const uploadDir = '/var/www/uploads'; 
+const uploadDir = path.resolve(process.cwd(), 'uploads');
 if (!fs.existsSync(uploadDir)) {
   fs.mkdirSync(uploadDir, { recursive: true });
 }
@@ -20,7 +20,7 @@ const storage = multer.diskStorage({
   }
 });
 
-const upload = multer({ storage });
+const upload = multer({ storage, limits: { fileSize: 1024 * 1024 } });
 
 router.post('/', requireAuth, upload.single('file'), async (req, res, next) => {
   try {
