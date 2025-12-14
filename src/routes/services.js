@@ -21,19 +21,26 @@ router.post('/', requireAuth,
   body('title').isString(),
   body('description').isString(),
   body('imageUrl').optional().isString(),
+  body('image').optional().isString(),
   body('readMore').optional().isString(),
   async (req, res, next) => {
     try {
       const errors = validationResult(req);
       if (!errors.isEmpty()) return res.status(400).json({ errors: errors.array() });
-      const created = await Service.create(req.body);
+      const payload = { ...req.body };
+      if (!payload.imageUrl && payload.image) payload.imageUrl = payload.image;
+      const created = await Service.create(payload);
       res.status(201).json(created);
     } catch (e) { next(e); }
   }
 );
 
 router.put('/:id', requireAuth, async (req, res, next) => {
-  try { res.json(await Service.findByIdAndUpdate(req.params.id, req.body, { new: true })); } catch (e) { next(e); }
+  try {
+    const payload = { ...req.body };
+    if (!payload.imageUrl && payload.image) payload.imageUrl = payload.image;
+    res.json(await Service.findByIdAndUpdate(req.params.id, payload, { new: true }));
+  } catch (e) { next(e); }
 });
 
 router.delete('/:id', requireAuth, async (req, res, next) => {

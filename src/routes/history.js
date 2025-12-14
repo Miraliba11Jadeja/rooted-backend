@@ -9,6 +9,14 @@ router.get('/', async (_req, res, next) => {
   try { res.json(await History.find().sort({ createdAt: -1 })); } catch (e) { next(e); }
 });
 
+router.get('/:id', async (req, res, next) => {
+  try {
+    const doc = await History.findById(req.params.id);
+    if (!doc) return res.status(404).json({ error: 'Not found' });
+    res.json(doc);
+  } catch (e) { next(e); }
+});
+
 router.post(
   '/',
   requireAuth,
