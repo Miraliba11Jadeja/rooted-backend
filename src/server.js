@@ -19,6 +19,7 @@ import blogRoutes from './routes/blogs.js';
 import adminsRoutes from './routes/admins.js';
 import historyRoutes from './routes/history.js';
 import reviewsRoutes from './routes/reviews.js';
+import serviceImagesRoutes from './routes/serviceImages.js';
 import inquiryRoutes from './routes/inquiries.js';
 import { errorHandler } from './middleware/error.js';
 
@@ -61,6 +62,7 @@ app.use('/api/inquiries', inquiryRoutes);
 app.use('/api/admins', adminsRoutes);
 app.use('/api/history', historyRoutes);
 app.use('/api/reviews', reviewsRoutes);
+app.use('/api/service-images', serviceImagesRoutes);
 
 app.use(errorHandler);
 
