@@ -2,6 +2,7 @@ import { Router } from 'express';
 import multer from 'multer';
 import path from 'path';
 import fs from 'fs';
+
 import { requireAuth } from '../middleware/auth.js';
 
 const router = Router();
@@ -20,9 +21,19 @@ const storage = multer.diskStorage({
   }
 });
 
-const upload = multer({ storage, limits: { fileSize: 1024 * 1024 } });
+const upload = multer({ storage, limits: { fileSize: 5 * 1024 * 1024 } }); // 5MB limit
 
-router.post('/', requireAuth, upload.single('file'), async (req, res, next) => {
+router.post('/', requireAuth, (req, res, next) => {
+  upload.single('file')(req, res, (err) => {
+    if (err) {
+      if (err.code === 'LIMIT_FILE_SIZE') {
+        return res.status(400).json({ error: 'File too large. Maximum size is 5MB.' });
+      }
+      return res.status(400).json({ error: err.message });
+    }
+    next();
+  });
+}, async (req, res, next) => {
   try {
     const filename = req.file?.filename;
     if (!filename) return res.status(400).json({ error: 'No file uploaded' });

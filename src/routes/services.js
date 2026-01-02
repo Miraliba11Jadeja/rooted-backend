@@ -20,8 +20,8 @@ router.get('/:id', async (req, res, next) => {
 router.post('/', requireAuth,
   body('title').isString(),
   body('description').isString(),
-  body('imageUrl').optional().isString(),
-  body('image').optional().isString(),
+  body('imageUrl').optional({ nullable: true }).isString(),
+  body('image').optional({ nullable: true }).isString(),
   body('readMore').optional().isString(),
   async (req, res, next) => {
     try {
@@ -35,13 +35,22 @@ router.post('/', requireAuth,
   }
 );
 
-router.put('/:id', requireAuth, async (req, res, next) => {
-  try {
-    const payload = { ...req.body };
-    if (!payload.imageUrl && payload.image) payload.imageUrl = payload.image;
-    res.json(await Service.findByIdAndUpdate(req.params.id, payload, { new: true }));
-  } catch (e) { next(e); }
-});
+router.put('/:id', requireAuth,
+  body('title').optional().isString(),
+  body('description').optional().isString(),
+  body('imageUrl').optional({ nullable: true }).isString(),
+  body('image').optional({ nullable: true }).isString(),
+  body('readMore').optional().isString(),
+  async (req, res, next) => {
+    try {
+      const errors = validationResult(req);
+      if (!errors.isEmpty()) return res.status(400).json({ errors: errors.array() });
+      const payload = { ...req.body };
+      if (!payload.imageUrl && payload.image) payload.imageUrl = payload.image;
+      res.json(await Service.findByIdAndUpdate(req.params.id, payload, { new: true }));
+    } catch (e) { next(e); }
+  }
+);
 
 router.delete('/:id', requireAuth, async (req, res, next) => {
   try { await Service.findByIdAndDelete(req.params.id); res.json({ ok: true }); } catch (e) { next(e); }

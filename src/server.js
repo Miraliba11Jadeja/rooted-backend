@@ -2,6 +2,7 @@ import express from 'express';
 import morgan from 'morgan';
 import dotenv from 'dotenv';
 import cors from 'cors';
+import path from 'path';
 import { connectDB, ensureBootstrapAdmin } from './setup.js';
 import authRoutes from './routes/auth.js';
 import serviceRoutes from './routes/services.js';
@@ -39,7 +40,7 @@ import paymentsWebhook from './webhook.js';
 app.post('/api/payments/webhook', paymentsWebhook);
 
 app.use(express.json({ limit: '1mb' }));
-app.use('/uploads', express.static('uploads'));
+app.use('/uploads', express.static(path.join(process.cwd(), 'uploads')));
 
 app.get('/api/health', (req, res) => {
   res.json({ status: 'ok' });
