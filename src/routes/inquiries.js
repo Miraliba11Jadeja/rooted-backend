@@ -2,6 +2,7 @@ import { Router } from 'express';
 import { body, validationResult } from 'express-validator';
 import { Inquiry } from '../models/Inquiry.js';
 import { requireAuth } from '../middleware/auth.js';
+import { sendBookingNotification } from '../services/email.js';
 
 const router = Router();
 
@@ -19,6 +20,15 @@ router.post('/',
       const errors = validationResult(req);
       if (!errors.isEmpty()) return res.status(400).json({ errors: errors.array() });
       const created = await Inquiry.create(req.body);
+      
+      // Send email notification asynchronously
+      try {
+        await sendBookingNotification(req.body);
+      } catch (emailError) {
+        console.error('Failed to send booking notification email:', emailError);
+        // Don't fail the entire request if email fails
+      }
+      
       res.status(201).json(created);
     } catch (e) { next(e); }
   }
