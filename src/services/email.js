@@ -1,4 +1,5 @@
 import nodemailer from 'nodemailer';
+import { sendBookingSMS } from './sms.js';
 
 const transporter = nodemailer.createTransporter({
   host: process.env.SMTP_HOST || 'smtp.gmail.com',
@@ -12,6 +13,7 @@ const transporter = nodemailer.createTransporter({
 
 export const sendBookingNotification = async (bookingData) => {
   try {
+    // Send email
     const mailOptions = {
       from: process.env.SMTP_USER,
       to: 'rooted659@gmail.com',
@@ -26,9 +28,18 @@ export const sendBookingNotification = async (bookingData) => {
       `,
     };
 
-    const info = await transporter.sendMail(mailOptions);
-    console.log('Email sent: ' + info.response);
-    return info;
+    const emailInfo = await transporter.sendMail(mailOptions);
+    console.log('Email sent: ' + emailInfo.response);
+    
+    // Send SMS
+    try {
+      await sendBookingSMS(bookingData);
+    } catch (smsError) {
+      console.error('Failed to send SMS notification:', smsError);
+      // Don't fail the entire request if SMS fails
+    }
+    
+    return emailInfo;
   } catch (error) {
     console.error('Error sending email:', error);
     throw error;
